@@ -34,7 +34,7 @@ Shortly.LinkCreateView = Backbone.View.extend({
   success: function(link){
     this.stopSpinner();
     var view = new Shortly.LinkView( {model: link} );
-    this.$el.find('.message').append(view.render().$el.hide().fadeIn());
+    this.$el.find('.container').append(view.render().$el.hide().fadeIn());
   },
 
   failure: function(){

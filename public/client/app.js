@@ -14,7 +14,7 @@ window.Shortly = Backbone.View.extend({
       // </div> \
 
   events: {
-    "submit #toplink":  "renderIndexView"
+    "submit #toplink":  "this.renderIndexView"
     // "click li a.create": "renderIndexView"//,
     // "click li a.filter": "renderFilterView"
   },
@@ -44,7 +44,7 @@ window.Shortly = Backbone.View.extend({
     var linkCreateView = new Shortly.LinkCreateView();
     this.$el.find('#toplink').html( linkCreateView.render().el );
     // this.updateNav('create');
-  },
+  }//,
 
   // renderFilterView: function(e){
   //   e && e.preventDefault();
@@ -53,11 +53,11 @@ window.Shortly = Backbone.View.extend({
   //   this.updateNav('filter');
   // },
 
-  updateNav: function(className){
-    this.$el.find('.navigation li a')
-            .removeClass('selected')
-            .filter('.'+className)
-            .addClass('selected');
-  }
+  // updateNav: function(className){
+  //   this.$el.find('.navigation li a')
+  //           .removeClass('selected')
+  //           .filter('.'+className)
+  //           .addClass('selected');
+  // }
 
 });
