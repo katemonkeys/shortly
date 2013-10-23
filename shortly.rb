@@ -60,7 +60,7 @@ get '/' do
 end
 
 get '/links' do
-    links = Link.order("created_at DESC")
+    links = Link.order("visits DESC")
     links.map { |link|
         link.as_json.merge(base_url: request.base_url)
     }.to_json
@@ -74,6 +74,16 @@ post '/links' do
            Link.create( url: uri.to_s, title: get_url_title(uri) )
     link.as_json.merge(base_url: request.base_url).to_json
 end
+
+# get '/stats' do
+#     time = Click.order("updated_at DESC")
+#     time.map { |time|
+#         time.as_json.merge(updated_at: request.updated_at)
+#     }.to_json
+# The data that I have is the updated_at times
+#for all links in my activerecord database. Let's
+#first display all those and then sort, then bin.
+# end
 
 get '/:url' do
     link = Link.find_by_code params[:url]
