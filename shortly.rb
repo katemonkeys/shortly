@@ -5,6 +5,7 @@ require 'digest/sha1'
 require 'pry'
 require 'uri'
 require 'open-uri'
+require 'handlebars'
 # require 'nokogiri'
 
 ###########################################################
@@ -60,19 +61,21 @@ get '/' do
 end
 
 get '/links' do
-    links = Link.order("visits DESC")
+    links = Link.order("created_at DESC")
     links.map { |link|
         link.as_json.merge(base_url: request.base_url)
     }.to_json
 end
 
 post '/links' do
+    # binding.pry
     data = JSON.parse request.body.read
     uri = URI(data['url'])
     raise Sinatra::NotFound unless uri.absolute?
     link = Link.find_by_url(uri.to_s) ||
            Link.create( url: uri.to_s, title: get_url_title(uri) )
     link.as_json.merge(base_url: request.base_url).to_json
+    console.log("request in POST: "+request.base_url);
 end
 
 # get '/stats' do
