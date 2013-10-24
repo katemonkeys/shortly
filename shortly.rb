@@ -6,6 +6,7 @@ require 'pry'
 require 'uri'
 require 'open-uri'
 require 'handlebars'
+require 'bcrypt'
 # require 'nokogiri'
 
 ###########################################################
@@ -13,6 +14,8 @@ require 'handlebars'
 ###########################################################
 
 set :public_folder, File.dirname(__FILE__) + '/public'
+
+enable :sessions
 
 configure :development, :production do
     ActiveRecord::Base.establish_connection(
@@ -48,17 +51,42 @@ class Link < ActiveRecord::Base
     end
 end
 
+class User < ActiveRecord::Base
+  attr_accessible :username, :email, :password_hash, :password_salt
+
+  validates :username, presence: true
+end
+
 class Click < ActiveRecord::Base
     belongs_to :link, counter_cache: :visits
 end
+
+
+
+#########
+#https://gist.github.com/nopolabs/1458038
+#########
+
+helpers do
+  def login?
+    if session[:username].nil?
+      return false
+    else
+      return true
+    end
+  end
+
+  def username
+    return session[:username]
+  end
+end
+
+
 
 ###########################################################
 # Routes
 ###########################################################
 
-get '/' do
-    erb :index
-end
 
 get '/links' do
     links = Link.order("created_at DESC")
@@ -77,6 +105,61 @@ post '/links' do
     link.as_json.merge(base_url: request.base_url).to_json
     console.log("request in POST: "+request.base_url);
 end
+
+get "/signup" do
+  erb :signup
+end
+
+post "/signup" do
+  data = JSON.parse request.body.read
+  username = data['username']
+  email = data['email']
+
+  password_salt = BCrypt::Engine.generate_salt
+  password_hash = BCrypt::Engine.hash_secret(params[:password], password_salt)
+
+  #raise Sinatra::NotFound unless uri.absolute?
+
+  console.log(data)
+  user = Link.find_by_url(uri.to_s) ||
+           Link.create( url: uri.to_s, title: get_url_title(uri) )
+    link.as_json.merge(base_url: request.base_url).to_json
+
+  #ideally this would be saved into a database, hash used just for sample
+  :users [params[:username]] = {
+    :salt => password_salt,
+    :passwordhash => password_hash
+  }
+
+  session[:username] = params[:username]
+  redirect "/"
+end
+
+post "/login" do
+  if userTable.has_key?(params[:username])
+    user = userTable[params[:username]]
+    if user[:passwordhash] == BCrypt::Engine.hash_secret(params[:password], user[:salt])
+      session[:username] = params[:username]
+      redirect "/"
+    end
+  end
+  erb :error
+end
+ 
+get "/logout" do
+  session[:username] = nil
+  redirect "/"
+end
+
+get '/login' do
+    erb :login
+end
+
+get '/' do       #needs to be here?
+    erb :index
+end
+
+
 
 # get '/stats' do
 #     time = Click.order("updated_at DESC")
