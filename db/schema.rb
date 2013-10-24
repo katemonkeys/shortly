@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131022053000) do
+ActiveRecord::Schema.define(:version => 20131024051453) do
 
   create_table "clicks", :force => true do |t|
     t.integer  "link_id"
@@ -25,6 +25,15 @@ ActiveRecord::Schema.define(:version => 20131022053000) do
     t.datetime "updated_at",                :null => false
     t.integer  "visits",     :default => 0
     t.string   "title"
+  end
+
+  create_table "users", :force => true do |t|
+    t.string   "username"
+    t.string   "email"
+    t.string   "password_hash"
+    t.string   "password_salt"
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
   end
 
 end
